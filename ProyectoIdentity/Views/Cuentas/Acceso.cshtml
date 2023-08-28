@@ -1,0 +1,85 @@
+﻿@model AccesoViewModel
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> signInManager
+
+@{
+    ViewData["Title"] = "Acceso de usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title text-center">Acceso de usuario</h3>
+       
+            
+            <div class="row mt-4">
+                <div class="col-sm-6">                   
+                     <form asp-controller="Cuentas" asp-action="Acceso" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                         <div class="text-danger" asp-validation-summary="All"></div>
+                         <div class="mb-3">
+                            <label asp-for="Email" class="col-md-2"></label>
+                             <input asp-for="Email" class="form-control" placeholder="Ingresa tu email"/>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>  
+                    
+                          <div class="mb-3">
+                            <label asp-for="Password" class="col-md-2"></label>
+                             <input asp-for="Password" class="form-control" placeholder="Ingresa la contraseña"/>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>  
+                    
+                          <div class="mb-3">
+                            <div class="custom-check">
+                                <label asp-for="RememberMe">
+                                 <input asp-for="RememberMe"/>
+                                @Html.DisplayNameFor(m => m.RememberMe)
+                                </label>
+                            </div>
+                        </div> 
+                        
+                        <div class="row">
+                            <div class="col-sm-12">
+                                 <button type="submit" class="btn btn-success w-100 btn-lg">Acceder <i class="bi bi-arrow-right-circle-fill"></i></button>
+                                 <p><a asp-action="Registro">Registrarse como un nuevo usuario?</a></p>
+                                 <p><a asp-action="OlvidoPassword">Olvidaste tu contraseña?</a></p>
+                            </div>
+                        </div>
+
+                     </form>
+                </div>
+
+            @{
+                var esquemas = await signInManager.GetExternalAuthenticationSchemesAsync();
+                var proveedoresAcceso = esquemas.ToList();
+            }
+
+            @if(proveedoresAcceso.Count() > 0)
+            {
+                <div class="col-sm-4 offset-2">
+                    <h3>Acceso con otras cuentas</h3>    
+
+                    <form asp-controller="Cuentas" asp-action="AccesoExterno" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <div class="mt-4">
+                            <p>
+                                @foreach(var proveedor in proveedoresAcceso){
+                                    @if(proveedor.Name == "Facebook"){
+                                        <button type="submit" class="btn btn-primary w-100" name="proveedor" value="@proveedor.Name" title="Acceda usando su cuenta @proveedor.Name"><i class="bi bi-facebook"></i> @proveedor.Name</button>
+                                    }
+
+                                    @if(proveedor.Name == "Google"){
+                                        <button type="submit" class="btn btn-danger w-100 mt-4" name="proveedor" value="@proveedor.Name" title="Acceda usando su cuenta @proveedor.Name"><i class="bi bi-google"></i> @proveedor.Name</button>
+                                    }
+                                }
+                            </p>
+                     </div>
+                 </form>
+             </div>
+            }
+    </div>
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
