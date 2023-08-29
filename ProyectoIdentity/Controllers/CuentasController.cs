@@ -302,5 +302,17 @@ namespace ProyectoIdentity.Controllers
             return View(caeViewModel);
         }
 
+        //Autentificacion
+        [HttpGet]
+        public async Task<IActionResult> ActivarAutentuador() 
+        {
+          var  usuario = await _userManager.GetUserAsync(User);
+          await _userManager.ResetAuthenticatorKeyAsync(usuario);
+            var token = await _userManager.GetAuthenticatorKeyAsync(usuario);
+            var adfModel= new AutentificacionDosFactoresViewModel() { Token = token };
+            return View(adfModel);
+        
+        }
+
     }
 }

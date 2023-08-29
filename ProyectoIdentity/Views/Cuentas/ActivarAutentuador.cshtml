@@ -1,0 +1,43 @@
+﻿@model AutentificacionDosFactoresViewModel
+
+<p> Por favot ingrese el codigo de abajo de su App Autentificador</p>
+<p>@Model.Token</p>
+
+<form method="post">
+    <input type="hidden" asp-for="Token"/>
+
+    <hr />
+
+    <div class="row">
+
+        <div class="col-sm-7">
+            <div class="col-md-12">
+                <label asp-for="Code"></label>
+                <input type="text" asp-for="Code" class="form-control" placeholder="Escribe aqui el codigo de tu autentifcacion"/>
+                <span asp-validation-for="Code" class="text-danger"  ></span>
+            </div>
+        </div>
+  
+        <div class="col-sm-5">
+            <div class="col-sm-5">
+                <div class="col-md-12 pt-4">
+                    <button type="submit" class="btn btn-primary mt-3"> <i class="bi bi-arrow-right-circle-fill">Enviar</i></button>
+
+                </div>
+
+           </div>
+
+        </div>
+
+    </div>
+
+
+
+</form>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
