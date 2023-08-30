@@ -314,62 +314,100 @@ namespace ProyectoIdentity.Controllers
             return View(caeViewModel);
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         //Autentificacion
         [HttpGet]
         public async Task<IActionResult> ActivarAutentuador() 
         {
-          var  usuario = await _userManager.GetUserAsync(User);
-          await _userManager.ResetAuthenticatorKeyAsync(usuario);
+            var usuario = await _userManager.GetUserAsync(User);
+            await _userManager.ResetAuthenticatorKeyAsync(usuario);
             var token = await _userManager.GetAuthenticatorKeyAsync(usuario);
-            var adfModel= new AutentificacionDosFactoresViewModel() { Token = token };
+            var adfModel= new AutenticacionDosFactoresViewModel() { Token = token };
             return View(adfModel);
-        
         }
 
 
-        //Autentificacion
         [HttpPost]
-        public async Task<IActionResult> ActivarAutentuador(AutentificacionDosFactoresViewModel addViewModel)
+        public async Task<IActionResult> ActivarAutentuador(AutenticacionDosFactoresViewModel adfViewModel)
         {
             if (ModelState.IsValid)
             {
                 var usuario = await _userManager.GetUserAsync(User);
-                var suceeded = await _userManager.VerifyTwoFactorTokenAsync(usuario, _userManager.Options.Tokens.AuthenticatorTokenProvider,addViewModel.Code);
-                if (suceeded) {
+                var suceeded = await _userManager.VerifyTwoFactorTokenAsync(usuario, _userManager.Options.Tokens.AuthenticatorTokenProvider, adfViewModel.Code);
+                if (suceeded)
+                {
                     await _userManager.SetTwoFactorEnabledAsync(usuario, true);
                 }
                 else
                 {
-                    ModelState.AddModelError("Verificar", $"Su autentificacion no ha sido valida");
+                    ModelState.AddModelError("Error", "Su autenticación de dos factores no ha sido validada");
+                    return View(adfViewModel);
                 }
             }
-            return RedirectToAction(nameof(ConirmactionAutentificador));
+            return RedirectToAction(nameof(ConfirmacionAutenticador));
         }
 
-
         [HttpGet]
-        public IActionResult ConirmactionAutentificador()
+        public IActionResult ConfirmacionAutenticador()
         {
             return View();
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> VerificarCodigoAutentificador(bool recordarDatos,string returnurl=null)
+        [AllowAnonymous]
+        public async Task<IActionResult> VerificarCodigoAutenticador(bool recordarDatos, string returnurl = null)
         {
-            var usuario = await _signInManager .GetTwoFactorAuthenticationUserAsync();
-            if (usuario==null)
+            var usuario = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (usuario == null)
             {
                 return View("Error");
             }
+
             ViewData["ReturnUrl"] = returnurl;
-            return View(new VerificarAutentificadorViewModel { ReturnUrl = returnurl,RecordarDatos=recordarDatos  });
-
-
-            return View();
+            return View(new VerificarAutenticadorViewModel { ReturnUrl = returnurl, RecordarDatos = recordarDatos });
         }
 
 
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerificarCodigoAutentificador(VerificarAutenticadorViewModel vaViewModel)
+        {
+            vaViewModel.ReturnUrl = vaViewModel.ReturnUrl ?? Url.Content("~/");
+            if (!ModelState.IsValid)
+            {
+                return View(vaViewModel);
+            }
+
+            var resultado = await _signInManager.TwoFactorAuthenticatorSignInAsync(vaViewModel.Code, vaViewModel.RecordarDatos, rememberClient: true);
+            if (resultado.Succeeded)
+            {
+                return LocalRedirect(vaViewModel.ReturnUrl);
+            }
+            if (resultado.IsLockedOut)
+            {
+                return View("Bloqueado");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Código Inválido");
+                return View(vaViewModel);
+            }
+        }
 
     }
 }

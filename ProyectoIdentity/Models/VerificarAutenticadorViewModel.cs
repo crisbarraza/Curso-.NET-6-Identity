@@ -2,7 +2,7 @@
 
 namespace ProyectoIdentity.Models
 {
-    public class VerificarAutentificadorViewModel
+    public class VerificarAutenticadorViewModel
     {
         [Required]
         [Display(Name = "Codigo del autentificador")]

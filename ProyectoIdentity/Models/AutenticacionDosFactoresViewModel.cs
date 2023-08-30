@@ -2,7 +2,7 @@
 
 namespace ProyectoIdentity.Models
 {
-    public class AutentificacionDosFactoresViewModel
+    public class AutenticacionDosFactoresViewModel
     {
         //para acceso
         [Required]
